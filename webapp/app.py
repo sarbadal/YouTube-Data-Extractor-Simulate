@@ -11,11 +11,13 @@ if str(PROJECT_ROOT) not in sys.path:
 
 from webapp.constants import SECRET_KEY
 from webapp.routes import web
+from webapp.services import REPORT_RETENTION_LIMIT, prune_old_reports
 
 def create_app() -> Flask:
     app = Flask(__name__)
     app.config["SECRET_KEY"] = SECRET_KEY
     app.register_blueprint(web)
+    prune_old_reports(max_reports=REPORT_RETENTION_LIMIT)
     return app
 
 

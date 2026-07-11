@@ -211,7 +211,7 @@ legend {
 }
 
 .result-container {
-  max-width: 760px;
+  max-width: 1080px;
 }
 
 .result-card h1 {
@@ -239,6 +239,73 @@ dd {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
+}
+
+.report-list-area {
+  margin-top: 20px;
+  padding-top: 14px;
+  border-top: 1px dashed #d7cebf;
+}
+
+.report-list-area h2 {
+  margin: 0 0 10px;
+  font-size: 1.05rem;
+}
+
+.report-links {
+  display: grid;
+  gap: 8px;
+}
+
+.report-pair {
+  display: grid;
+  gap: 6px;
+}
+
+.table-wrap {
+  overflow-x: auto;
+  border: 1px solid #e2d7c7;
+  border-radius: 12px;
+}
+
+.download-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 860px;
+}
+
+.download-table th,
+.download-table td {
+  text-align: left;
+  padding: 10px;
+  border-bottom: 1px solid #e2d7c7;
+  vertical-align: top;
+}
+
+.download-table th {
+  font-size: 0.85rem;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: #60594f;
+  background: #f8f1e5;
+}
+
+.download-table td .report-link {
+  display: inline-block;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.report-link {
+  text-align: left;
+  font-family: "IBM Plex Mono", monospace;
+}
+
+.muted-copy {
+  color: var(--muted);
+  margin: 0;
 }
 
 @media (max-width: 720px) {

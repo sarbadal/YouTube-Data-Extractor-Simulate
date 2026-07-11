@@ -99,9 +99,12 @@
 
           <button type="button" id="load-default-columns" class="ghost-btn">Use dataset default columns</button>
           <button type="submit" class="primary-btn">Generate Report</button>
+          <a class="ghost-btn" href="{{ url_for('web.results_page') }}">View Available Reports</a>
         </form>
       </section>
     </main>
+
+    <script id="dataset-defaults" type="application/json">{{ dataset_default_columns | tojson }}</script>
 
     <script>
       const dateModeSelect = document.getElementById("date-mode");
@@ -110,7 +113,7 @@
       const datasetSelect = document.getElementById("dataset-select");
       const selectColumns = document.getElementById("select-columns");
       const loadDefaultsButton = document.getElementById("load-default-columns");
-      const defaults = {{ dataset_default_columns | tojson }};
+      const defaults = JSON.parse(document.getElementById("dataset-defaults").textContent);
 
       function updateDateMode() {
         if (dateModeSelect.value === "explicit") {

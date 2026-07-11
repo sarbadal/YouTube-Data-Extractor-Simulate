@@ -18,14 +18,59 @@
 
     <main class="container result-container">
       <section class="card result-card">
-        <p class="tag">Success</p>
-        <h1>Report Generated</h1>
-        <p>Your extraction completed successfully.</p>
+        {% if output_file and config_file %}
+          <p class="tag">Success</p>
+          <h1>Report Generated</h1>
+          <p>Your extraction completed successfully.</p>
+        {% else %}
+          <p class="tag">Reports</p>
+          <h1>Available Downloads</h1>
+          <p>Browse and download previously generated reports and matching config files.</p>
+        {% endif %}
 
         <div class="actions">
-          <a class="primary-btn" href="{{ url_for('web.download_report', file=output_file) }}">Download CSV</a>
-          <a class="ghost-btn" href="{{ url_for('web.download_config', file=config_file) }}">Download Config JSON</a>
+          {% if output_file and config_file %}
+            <a class="primary-btn" href="{{ url_for('web.download_report', file=output_file) }}">Download CSV</a>
+            <a class="ghost-btn" href="{{ url_for('web.download_config', file=config_file) }}">Download Config JSON</a>
+          {% endif %}
+          <a class="ghost-btn" href="{{ url_for('web.index') }}">Generate More Reports</a>
         </div>
+
+        <section class="report-list-area">
+          <h2>Last {{ recent_reports_limit }} Reports Available for Download</h2>
+          {% if recent_report_config_pairs %}
+            <div class="table-wrap">
+              <table class="download-table">
+                <thead>
+                  <tr>
+                    <th>Report</th>
+                    <th>Config</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for item in recent_report_config_pairs %}
+                    <tr>
+                      <td>
+                        {% set report_short = item.report_name[:10] ~ '...' ~ item.report_name[-20:] if item.report_name|length > 33 else item.report_name %}
+                        <a class="ghost-btn report-link" href="{{ url_for('web.download_report', file=item.report_file) }}" title="{{ item.report_name }}">{{ report_short }}</a>
+                      </td>
+                      <td>
+                        {% if item.config_file %}
+                          {% set config_short = item.config_name[:10] ~ '...' ~ item.config_name[-20:] if item.config_name|length > 33 else item.config_name %}
+                          <a class="ghost-btn report-link" href="{{ url_for('web.download_config', file=item.config_file) }}" title="{{ item.config_name }}">{{ config_short }}</a>
+                        {% else %}
+                          <span class="muted-copy">Config JSON not found</span>
+                        {% endif %}
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          {% else %}
+            <p class="muted-copy">No reports found yet.</p>
+          {% endif %}
+        </section>
       </section>
     </main>
   </body>
