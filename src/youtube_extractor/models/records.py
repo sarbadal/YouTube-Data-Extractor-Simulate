@@ -5,6 +5,13 @@ from dataclasses import dataclass
 
 @dataclass
 class CampaignRecord:
+    """Typed representation of one campaign-level performance record.
+
+    This model mirrors the base daily campaign template schema and offers a
+    structured object instead of passing raw dictionaries across the codebase.
+    All fields are strings because CSV inputs are text-based in this simulator.
+    """
+
     date: str
     client_id: str
     account_id: str
@@ -23,6 +30,19 @@ class CampaignRecord:
 
     @classmethod
     def from_row(cls, row: dict[str, str]) -> "CampaignRecord":
+        """Build a ``CampaignRecord`` from a CSV row dictionary.
+
+        The helper converts a raw ``DictReader`` row into a typed dataclass
+        instance while safely handling missing keys by defaulting to empty
+        strings. This keeps downstream code resilient when template schemas
+        evolve or when optional columns are absent.
+
+        Args:
+            row: One raw row from a template CSV, keyed by column name.
+
+        Returns:
+            A populated ``CampaignRecord`` instance.
+        """
         return cls(
             date=row.get("date", ""),
             client_id=row.get("client_id", ""),

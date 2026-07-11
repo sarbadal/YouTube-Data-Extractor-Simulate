@@ -18,6 +18,34 @@ DATASET_TO_FILE = {
 
 
 def run_extraction(config_path: str | Path, project_root: str | Path | None = None) -> Path:
+    """Run a simulated YouTube Ads data extraction using a config file.
+
+    This function is the main orchestration entrypoint for the extractor module.
+    It reads a JSON config, validates platform and dataset, loads the mapped
+    template CSV from ``data/``, applies filters/column projection, and writes
+    the final report CSV to the configured output path.
+
+    The extraction is fully local and deterministic. No network/API calls are
+    made. It is intended for demos and development workflows where the output
+    schema should mimic a real platform extraction flow.
+
+    Args:
+        config_path: Path to the extraction config JSON. The config must include
+            values such as ``platform``, ``dataset``, ``client_id``,
+            ``date_range``, ``filters``, ``select_columns``, and ``output``.
+        project_root: Optional repository root path. When omitted, the function
+            auto-detects it from this file location.
+
+    Returns:
+        Path to the generated output CSV file.
+
+    Raises:
+        ValueError: If the platform is not ``youtube`` or if the dataset key is
+            not supported by ``DATASET_TO_FILE``.
+        FileNotFoundError: If the mapped source template file is missing.
+        json.JSONDecodeError: If the config file contains invalid JSON.
+        OSError: If writing the output file fails.
+    """
     root = Path(project_root) if project_root else Path(__file__).resolve().parents[3]
 
     config = load_config(config_path)

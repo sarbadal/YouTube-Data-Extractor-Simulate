@@ -111,3 +111,7 @@ Open:
 - This is intentionally deterministic and local-only.
 - No real API calls are made.
 - You can add more template files and map them in `extractor.py`.
+
+## Detailed Guide
+
+- Step-by-step extraction instructions: [EXTRACTION_STEPS.md](EXTRACTION_STEPS.md)
