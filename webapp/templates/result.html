@@ -22,17 +22,9 @@
         <h1>Report Generated</h1>
         <p>Your extraction completed successfully.</p>
 
-        <dl>
-          <dt>Config file</dt>
-          <dd>{{ config_file }}</dd>
-
-          <dt>Output file</dt>
-          <dd>{{ output_file }}</dd>
-        </dl>
-
         <div class="actions">
           <a class="primary-btn" href="{{ url_for('web.download_report', file=output_file) }}">Download CSV</a>
-          <a class="ghost-btn" href="{{ url_for('web.index') }}">Create Another Report</a>
+          <a class="ghost-btn" href="{{ url_for('web.download_config', file=config_file) }}">Download Config JSON</a>
         </div>
       </section>
     </main>

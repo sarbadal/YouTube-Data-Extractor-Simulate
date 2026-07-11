@@ -35,3 +35,15 @@ def resolve_output_download_path(file_param: str) -> Path:
         raise FileNotFoundError("Requested file does not exist")
 
     return target
+
+
+def resolve_config_download_path(file_param: str) -> Path:
+    target = (PROJECT_ROOT / file_param).resolve()
+    configs_root = CONFIG_OUTPUT_DIR.resolve()
+
+    if not str(target).startswith(str(configs_root)):
+        raise ValueError("Invalid config download path")
+    if not target.exists() or not target.is_file():
+        raise FileNotFoundError("Requested config file does not exist")
+
+    return target

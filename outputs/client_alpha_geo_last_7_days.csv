@@ -1,6 +1,0 @@
-date,client_id,campaign_id,country,region,impressions,views,clicks,spend,conversions
-2026-07-07,client_alpha,camp_104,US,California,6200,3900,245,132.00,24
-2026-07-07,client_alpha,camp_104,US,Texas,4100,2500,160,86.50,15
-2026-07-07,client_alpha,camp_104,US,New York,3300,2100,128,71.20,13
-2026-07-08,client_alpha,camp_104,US,California,5900,3680,230,125.00,22
-2026-07-11,client_alpha,camp_104,US,California,6100,3820,238,129.00,23

@@ -7,7 +7,12 @@ from flask import Blueprint, flash, redirect, render_template, request, send_fil
 
 from .constants import DATASET_DEFAULT_COLUMNS, DATASET_OPTIONS, PROJECT_ROOT
 from .form_config import build_config
-from .services import execute_extraction, resolve_output_download_path, save_generated_config
+from .services import (
+    execute_extraction,
+    resolve_config_download_path,
+    resolve_output_download_path,
+    save_generated_config,
+)
 
 web = Blueprint("web", __name__)
 
@@ -57,3 +62,16 @@ def download_report() -> Any:
         return redirect(url_for("web.index"))
 
     return send_file(target, as_attachment=True, download_name=target.name, mimetype="text/csv")
+
+
+@web.get("/download-config")
+def download_config() -> Any:
+    file_param = request.args.get("file", "")
+
+    try:
+        target = resolve_config_download_path(file_param)
+    except (ValueError, FileNotFoundError) as exc:
+        flash(str(exc), "error")
+        return redirect(url_for("web.index"))
+
+    return send_file(target, as_attachment=True, download_name=target.name, mimetype="application/json")

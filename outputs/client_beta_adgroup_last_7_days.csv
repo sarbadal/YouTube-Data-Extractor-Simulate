@@ -1,3 +1,0 @@
-date,client_id,campaign_id,adgroup_id,adgroup_name,adgroup_status,impressions,views,clicks,spend,conversions
-2026-07-10,client_beta,camp_203,ag_2002,Checkout Recovery Hot,ENABLED,7600,4680,315,165.00,27
-2026-07-10,client_beta,camp_203,ag_2003,Checkout Recovery Warm,ENABLED,6900,4200,278,150.00,23
