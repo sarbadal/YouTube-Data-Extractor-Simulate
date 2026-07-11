@@ -1,0 +1,29 @@
+{
+  "platform": "youtube",
+  "dataset": "campaign_device",
+  "client_id": "nike",
+  "date_range": {
+    "mode": "relative",
+    "last_n_days": 7,
+    "anchor_date": "2026-07-11"
+  },
+  "filters": {
+    "campaign_status": [
+      "ENABLED"
+    ],
+    "campaign_ids": []
+  },
+  "select_columns": [
+    "date",
+    "client_id",
+    "campaign_id",
+    "device",
+    "impressions",
+    "views",
+    "clicks",
+    "spend"
+  ],
+  "output": {
+    "path": "outputs/report_nike_campaign_device_20260711_075409.csv"
+  }
+}

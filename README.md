@@ -49,6 +49,31 @@ python scripts/run_extraction.py --config configs/client_alpha_last_7_days.json
 
 3. Output CSV will be written to `outputs/`.
 
+## Web App (Config Builder + CSV Download)
+
+You can run a Flask UI where users:
+
+- choose dataset and filters,
+- create a config file automatically,
+- generate the report,
+- download the resulting CSV from the browser.
+
+Install dependency:
+
+```bash
+pip install -r requirements.txt
+```
+
+Run UI:
+
+```bash
+python scripts/run_webapp.py
+```
+
+Open:
+
+- `http://127.0.0.1:5000`
+
 ## Example Config
 
 ```json

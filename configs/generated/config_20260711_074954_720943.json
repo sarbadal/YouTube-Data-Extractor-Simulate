@@ -1,0 +1,29 @@
+{
+  "platform": "youtube",
+  "dataset": "campaign_daily",
+  "client_id": "client_alpha",
+  "date_range": {
+    "mode": "relative",
+    "last_n_days": 7,
+    "anchor_date": "2026-07-11"
+  },
+  "filters": {
+    "campaign_status": [
+      "ENABLED"
+    ],
+    "campaign_ids": [
+      "camp_104"
+    ]
+  },
+  "select_columns": [
+    "date",
+    "client_id",
+    "campaign_id",
+    "campaign_name",
+    "spend",
+    "views"
+  ],
+  "output": {
+    "path": "outputs/report_client_alpha_campaign_daily_20260711_074954.csv"
+  }
+}

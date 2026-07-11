@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Report Generated</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+  </head>
+  <body>
+    <div class="bg-orb orb-1"></div>
+    <div class="bg-orb orb-2"></div>
+
+    <main class="container result-container">
+      <section class="card result-card">
+        <p class="tag">Success</p>
+        <h1>Report Generated</h1>
+        <p>Your extraction completed successfully.</p>
+
+        <dl>
+          <dt>Config file</dt>
+          <dd>{{ config_file }}</dd>
+
+          <dt>Output file</dt>
+          <dd>{{ output_file }}</dd>
+        </dl>
+
+        <div class="actions">
+          <a class="primary-btn" href="{{ url_for('web.download_report', file=output_file) }}">Download CSV</a>
+          <a class="ghost-btn" href="{{ url_for('web.index') }}">Create Another Report</a>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>YouTube Ads Extractor UI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+  </head>
+  <body>
+    <div class="bg-orb orb-1"></div>
+    <div class="bg-orb orb-2"></div>
+
+    <main class="container">
+      <header class="hero">
+        <p class="tag">Simulator</p>
+        <h1>YouTube Ads Report Generator</h1>
+        <p>
+          Build config, run extraction, and download report CSV from one screen.
+        </p>
+      </header>
+
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <section class="flash-area">
+            {% for category, message in messages %}
+              <div class="flash flash-{{ category }}">{{ message }}</div>
+            {% endfor %}
+          </section>
+        {% endif %}
+      {% endwith %}
+
+      <section class="card">
+        <form action="{{ url_for('web.generate_report') }}" method="post" class="form-grid">
+          <label>
+            Client ID
+            <input type="text" name="client_id" placeholder="client_alpha" required />
+          </label>
+
+          <label>
+            Dataset
+            <select name="dataset" id="dataset-select" required>
+              {% for dataset in dataset_options %}
+                <option value="{{ dataset }}">{{ dataset }}</option>
+              {% endfor %}
+            </select>
+          </label>
+
+          <label>
+            Date Mode
+            <select name="date_mode" id="date-mode" required>
+              <option value="relative">relative</option>
+              <option value="explicit">explicit</option>
+            </select>
+          </label>
+
+          <div id="relative-fields" class="inline-fields">
+            <label>
+              Last N Days
+              <input type="number" name="last_n_days" min="1" value="7" />
+            </label>
+            <label>
+              Anchor Date
+              <input type="date" name="anchor_date" value="{{ today }}" />
+            </label>
+          </div>
+
+          <div id="explicit-fields" class="inline-fields hidden">
+            <label>
+              Start Date
+              <input type="date" name="start_date" />
+            </label>
+            <label>
+              End Date
+              <input type="date" name="end_date" />
+            </label>
+          </div>
+
+          <fieldset>
+            <legend>Status Filter</legend>
+            <label class="checkbox-label"><input type="checkbox" name="campaign_status" value="ENABLED" checked /> ENABLED</label>
+            <label class="checkbox-label"><input type="checkbox" name="campaign_status" value="PAUSED" /> PAUSED</label>
+          </fieldset>
+
+          <label>
+            Campaign IDs (comma separated)
+            <input type="text" name="campaign_ids" placeholder="camp_104,camp_203" />
+          </label>
+
+          <label>
+            Select Columns (comma separated, optional)
+            <textarea name="select_columns" id="select-columns" rows="4" placeholder="Leave empty to use dataset defaults"></textarea>
+          </label>
+
+          <button type="button" id="load-default-columns" class="ghost-btn">Use dataset default columns</button>
+          <button type="submit" class="primary-btn">Generate Report</button>
+        </form>
+      </section>
+    </main>
+
+    <script>
+      const dateModeSelect = document.getElementById("date-mode");
+      const relativeFields = document.getElementById("relative-fields");
+      const explicitFields = document.getElementById("explicit-fields");
+      const datasetSelect = document.getElementById("dataset-select");
+      const selectColumns = document.getElementById("select-columns");
+      const loadDefaultsButton = document.getElementById("load-default-columns");
+      const defaults = {{ dataset_default_columns | tojson }};
+
+      function updateDateMode() {
+        if (dateModeSelect.value === "explicit") {
+          explicitFields.classList.remove("hidden");
+          relativeFields.classList.add("hidden");
+        } else {
+          relativeFields.classList.remove("hidden");
+          explicitFields.classList.add("hidden");
+        }
+      }
+
+      function loadDefaultColumns() {
+        const selectedDataset = datasetSelect.value;
+        if (!defaults[selectedDataset]) {
+          return;
+        }
+        selectColumns.value = defaults[selectedDataset].join(", ");
+      }
+
+      dateModeSelect.addEventListener("change", updateDateMode);
+      loadDefaultsButton.addEventListener("click", loadDefaultColumns);
+
+      updateDateMode();
+      loadDefaultColumns();
+    </script>
+  </body>
+</html>

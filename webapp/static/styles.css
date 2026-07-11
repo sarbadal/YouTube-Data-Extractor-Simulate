@@ -1,0 +1,269 @@
+:root {
+  --bg-1: #f7f3ea;
+  --bg-2: #fef9f0;
+  --surface: rgba(255, 255, 255, 0.82);
+  --ink: #1c1b1a;
+  --muted: #57524d;
+  --accent: #0f8b8d;
+  --accent-2: #f25f5c;
+  --edge: #d9d0c3;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Sora", sans-serif;
+  color: var(--ink);
+  background: radial-gradient(circle at 15% 10%, #fff9e5 0%, transparent 35%),
+    radial-gradient(circle at 80% 10%, #dcf1ef 0%, transparent 30%),
+    linear-gradient(135deg, var(--bg-1), var(--bg-2));
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.bg-orb {
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(40px);
+  opacity: 0.4;
+  z-index: 0;
+  animation: float 8s ease-in-out infinite;
+}
+
+.orb-1 {
+  width: 240px;
+  height: 240px;
+  background: #ffc46b;
+  top: -60px;
+  right: -40px;
+}
+
+.orb-2 {
+  width: 280px;
+  height: 280px;
+  background: #7cd0d1;
+  bottom: -80px;
+  left: -80px;
+  animation-delay: 1.3s;
+}
+
+.container {
+  position: relative;
+  z-index: 1;
+  max-width: 940px;
+  margin: 0 auto;
+  padding: 34px 16px 56px;
+}
+
+.hero {
+  margin-bottom: 18px;
+  animation: reveal 0.5s ease-out;
+}
+
+.hero h1 {
+  margin: 0;
+  font-size: clamp(1.7rem, 5vw, 2.5rem);
+  letter-spacing: -0.02em;
+}
+
+.hero p {
+  margin-top: 12px;
+  color: var(--muted);
+}
+
+.tag {
+  display: inline-block;
+  margin: 0 0 8px;
+  padding: 6px 11px;
+  background: #f3e8d6;
+  border: 1px solid #e2ceb2;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--edge);
+  border-radius: 18px;
+  box-shadow: 0 18px 34px rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(6px);
+  padding: 18px;
+  animation: reveal 0.6s ease-out;
+}
+
+.form-grid {
+  display: grid;
+  gap: 14px;
+}
+
+label,
+fieldset {
+  display: grid;
+  gap: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  border-radius: 12px;
+  border: 1px solid #cfc4b5;
+  padding: 11px 12px;
+  font-size: 0.95rem;
+  color: var(--ink);
+  background: #fffcf7;
+  font-family: "IBM Plex Mono", monospace;
+}
+
+textarea {
+  resize: vertical;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: 2px solid color-mix(in srgb, var(--accent) 70%, white);
+  border-color: var(--accent);
+}
+
+.inline-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.hidden {
+  display: none;
+}
+
+fieldset {
+  border: 1px solid #d7cebf;
+  border-radius: 12px;
+  padding: 12px;
+}
+
+legend {
+  padding: 0 6px;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+}
+
+.checkbox-label input {
+  width: auto;
+}
+
+.primary-btn,
+.ghost-btn {
+  appearance: none;
+  border-radius: 12px;
+  padding: 11px 14px;
+  font-weight: 700;
+  text-decoration: none;
+  text-align: center;
+  cursor: pointer;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.primary-btn {
+  border: 1px solid #0c6f71;
+  background: linear-gradient(135deg, var(--accent), #127b7d);
+  color: #f6fffe;
+  box-shadow: 0 8px 16px rgba(15, 139, 141, 0.28);
+}
+
+.ghost-btn {
+  border: 1px solid #cbbeab;
+  background: #fffaf2;
+  color: #403b35;
+}
+
+.primary-btn:hover,
+.ghost-btn:hover {
+  transform: translateY(-1px);
+}
+
+.flash-area {
+  margin: 12px 0;
+}
+
+.flash {
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.flash-error {
+  background: #fbe2dd;
+  border: 1px solid #efb8ac;
+  color: #7a1e1d;
+}
+
+.result-container {
+  max-width: 760px;
+}
+
+.result-card h1 {
+  margin-top: 0;
+}
+
+dl {
+  margin: 12px 0 18px;
+  display: grid;
+  gap: 8px;
+}
+
+dt {
+  font-weight: 700;
+}
+
+dd {
+  margin: 0;
+  color: var(--muted);
+  font-family: "IBM Plex Mono", monospace;
+  word-break: break-word;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+@media (max-width: 720px) {
+  .inline-fields {
+    grid-template-columns: 1fr;
+  }
+}
+
+@keyframes reveal {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-16px);
+  }
+}
