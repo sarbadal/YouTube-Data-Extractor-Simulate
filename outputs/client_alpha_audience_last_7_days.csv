@@ -1,0 +1,5 @@
+date,client_id,campaign_id,audience_segment,audience_type,impressions,views,clicks,spend,conversions
+2026-07-07,client_alpha,camp_104,In-Market Auto Buyers,IN_MARKET,4200,2600,175,82.00,18
+2026-07-07,client_alpha,camp_104,Remarketing 30d,REMARKETING,3900,2450,182,79.00,22
+2026-07-08,client_alpha,camp_104,Affinity Tech Enthusiasts,AFFINITY,3600,2250,149,74.00,14
+2026-07-08,client_alpha,camp_104,Remarketing 30d,REMARKETING,4000,2520,190,81.00,24

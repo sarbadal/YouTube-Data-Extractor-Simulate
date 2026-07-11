@@ -1,0 +1,5 @@
+date,client_id,campaign_id,campaign_name,campaign_status,spend,impressions,views,clicks,conversions
+2026-07-05,client_alpha,camp_103,Retargeting Hot Leads,ENABLED,190.00,8500,5000,410,55
+2026-07-06,client_alpha,camp_103,Retargeting Hot Leads,ENABLED,205.75,9100,5450,435,61
+2026-07-07,client_alpha,camp_104,Summer Promo Burst,ENABLED,420.40,20000,12500,790,73
+2026-07-11,client_alpha,camp_104,Summer Promo Burst,ENABLED,398.90,19000,11800,760,68

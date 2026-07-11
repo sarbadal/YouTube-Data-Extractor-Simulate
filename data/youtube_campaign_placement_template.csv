@@ -1,0 +1,14 @@
+date,client_id,campaign_id,placement_type,impressions,views,clicks,spend
+2026-07-07,client_alpha,camp_104,IN_STREAM,9500,6100,402,198.00
+2026-07-07,client_alpha,camp_104,IN_FEED,5400,3200,198,118.00
+2026-07-07,client_alpha,camp_104,SHORTS,5100,3200,190,104.40
+2026-07-08,client_alpha,camp_104,IN_STREAM,9200,5900,390,192.00
+2026-07-08,client_alpha,camp_104,SHORTS,4800,3050,182,98.00
+2026-07-09,client_beta,camp_202,IN_STREAM,7600,4700,315,145.00
+2026-07-09,client_beta,camp_202,IN_FEED,4200,2550,167,84.00
+2026-07-10,client_beta,camp_203,IN_STREAM,9100,5600,380,176.00
+2026-07-10,client_beta,camp_203,IN_FEED,4700,2850,188,95.00
+2026-07-10,client_beta,camp_203,SHORTS,4200,1850,112,84.00
+2026-07-10,client_gamma,camp_304,IN_STREAM,8900,5450,360,171.00
+2026-07-10,client_gamma,camp_304,SHORTS,4600,2350,142,88.00
+2026-07-11,client_gamma,camp_304,IN_STREAM,9200,5700,372,177.00

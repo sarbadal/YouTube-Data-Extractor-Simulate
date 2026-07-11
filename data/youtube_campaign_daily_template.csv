@@ -1,0 +1,31 @@
+date,client_id,account_id,campaign_id,campaign_name,campaign_status,spend,impressions,views,clicks,conversions,view_rate,ctr,avg_cpv,currency
+2026-07-01,client_alpha,acc_001,camp_101,Brand Awareness Wave 1,ENABLED,245.50,12000,7200,420,32,0.60,0.035,0.034,USD
+2026-07-02,client_alpha,acc_001,camp_101,Brand Awareness Wave 1,ENABLED,260.20,12800,7600,445,36,0.59,0.035,0.034,USD
+2026-07-03,client_alpha,acc_001,camp_102,Product Launch Teaser,ENABLED,310.00,14000,8100,510,47,0.58,0.036,0.038,USD
+2026-07-04,client_alpha,acc_001,camp_102,Product Launch Teaser,PAUSED,0.00,0,0,0,0,0.00,0.000,0.000,USD
+2026-07-05,client_alpha,acc_001,camp_103,Retargeting Hot Leads,ENABLED,190.00,8500,5000,410,55,0.59,0.048,0.038,USD
+2026-07-06,client_alpha,acc_001,camp_103,Retargeting Hot Leads,ENABLED,205.75,9100,5450,435,61,0.60,0.048,0.038,USD
+2026-07-07,client_alpha,acc_001,camp_104,Summer Promo Burst,ENABLED,420.40,20000,12500,790,73,0.63,0.040,0.034,USD
+2026-07-08,client_beta,acc_002,camp_201,Always On Reach,ENABLED,330.60,17000,9700,610,44,0.57,0.036,0.034,USD
+2026-07-09,client_beta,acc_002,camp_202,Offer Reminder,ENABLED,295.10,15000,8900,560,52,0.59,0.037,0.033,USD
+2026-07-10,client_beta,acc_002,camp_203,Checkout Recovery,ENABLED,355.00,18000,10300,680,70,0.57,0.038,0.034,USD
+2026-07-11,client_alpha,acc_001,camp_104,Summer Promo Burst,ENABLED,398.90,19000,11800,760,68,0.62,0.040,0.034,USD
+2026-07-01,client_beta,acc_002,camp_201,Always On Reach,ENABLED,305.40,16000,9200,580,41,0.58,0.036,0.033,USD
+2026-07-02,client_beta,acc_002,camp_201,Always On Reach,ENABLED,312.10,16500,9400,590,43,0.57,0.036,0.033,USD
+2026-07-03,client_beta,acc_002,camp_202,Offer Reminder,ENABLED,280.20,14800,8600,545,48,0.58,0.037,0.033,USD
+2026-07-04,client_beta,acc_002,camp_202,Offer Reminder,ENABLED,290.00,15200,8850,552,50,0.58,0.036,0.033,USD
+2026-07-05,client_beta,acc_002,camp_203,Checkout Recovery,ENABLED,340.75,17600,10100,660,66,0.57,0.038,0.034,USD
+2026-07-06,client_beta,acc_002,camp_203,Checkout Recovery,ENABLED,348.30,17800,10250,670,68,0.58,0.038,0.034,USD
+2026-07-07,client_beta,acc_002,camp_201,Always On Reach,ENABLED,325.20,16800,9600,605,45,0.57,0.036,0.034,USD
+2026-07-11,client_beta,acc_002,camp_203,Checkout Recovery,ENABLED,360.20,18200,10450,690,72,0.57,0.038,0.034,USD
+2026-07-01,client_gamma,acc_003,camp_301,Awareness East Region,ENABLED,210.00,11000,6600,390,29,0.60,0.035,0.032,USD
+2026-07-02,client_gamma,acc_003,camp_301,Awareness East Region,ENABLED,218.40,11400,6800,402,31,0.60,0.035,0.032,USD
+2026-07-03,client_gamma,acc_003,camp_302,Catalog Spotlight,ENABLED,275.15,13200,7600,488,40,0.58,0.037,0.036,USD
+2026-07-04,client_gamma,acc_003,camp_302,Catalog Spotlight,ENABLED,282.90,13600,7900,500,42,0.58,0.037,0.036,USD
+2026-07-05,client_gamma,acc_003,camp_303,Retention Pulse,PAUSED,0.00,0,0,0,0,0.00,0.000,0.000,USD
+2026-07-06,client_gamma,acc_003,camp_303,Retention Pulse,ENABLED,185.50,8200,4700,365,49,0.57,0.045,0.039,USD
+2026-07-07,client_gamma,acc_003,camp_303,Retention Pulse,ENABLED,192.30,8500,4950,378,53,0.58,0.044,0.039,USD
+2026-07-08,client_gamma,acc_003,camp_304,Monsoon Promo Push,ENABLED,330.00,17200,10200,640,59,0.59,0.037,0.032,USD
+2026-07-09,client_gamma,acc_003,camp_304,Monsoon Promo Push,ENABLED,338.45,17500,10400,652,62,0.59,0.037,0.033,USD
+2026-07-10,client_gamma,acc_003,camp_304,Monsoon Promo Push,ENABLED,342.10,17800,10600,665,64,0.60,0.037,0.032,USD
+2026-07-11,client_gamma,acc_003,camp_304,Monsoon Promo Push,ENABLED,349.85,18100,10850,678,66,0.60,0.037,0.032,USD

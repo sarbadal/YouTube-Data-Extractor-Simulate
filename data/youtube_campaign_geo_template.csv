@@ -1,0 +1,14 @@
+date,client_id,campaign_id,country,region,impressions,views,clicks,spend,conversions
+2026-07-07,client_alpha,camp_104,US,California,6200,3900,245,132.00,24
+2026-07-07,client_alpha,camp_104,US,Texas,4100,2500,160,86.50,15
+2026-07-07,client_alpha,camp_104,US,New York,3300,2100,128,71.20,13
+2026-07-08,client_alpha,camp_104,US,California,5900,3680,230,125.00,22
+2026-07-11,client_alpha,camp_104,US,California,6100,3820,238,129.00,23
+2026-07-09,client_beta,camp_202,US,Florida,5000,3010,190,94.00,17
+2026-07-10,client_beta,camp_203,US,Illinois,5400,3140,205,102.00,20
+2026-07-10,client_beta,camp_203,US,Washington,4300,2520,168,84.00,16
+2026-07-11,client_beta,camp_203,US,Illinois,5600,3280,212,106.00,21
+2026-07-08,client_gamma,camp_304,IN,Maharashtra,6100,3720,240,118.00,19
+2026-07-09,client_gamma,camp_304,IN,Karnataka,5200,3180,204,101.00,17
+2026-07-10,client_gamma,camp_304,IN,Delhi,5600,3400,218,109.00,18
+2026-07-11,client_gamma,camp_304,IN,Maharashtra,6300,3860,248,121.00,20

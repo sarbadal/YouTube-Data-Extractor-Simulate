@@ -1,0 +1,4 @@
+date,client_id,campaign_id,placement_type,impressions,views,clicks,spend
+2026-07-10,client_beta,camp_203,IN_STREAM,9100,5600,380,176.00
+2026-07-10,client_beta,camp_203,IN_FEED,4700,2850,188,95.00
+2026-07-10,client_beta,camp_203,SHORTS,4200,1850,112,84.00

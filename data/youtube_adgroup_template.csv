@@ -1,0 +1,10 @@
+date,client_id,campaign_id,adgroup_id,adgroup_name,adgroup_status,impressions,views,clicks,spend,conversions
+2026-07-07,client_alpha,camp_104,ag_1001,Awareness Broad Reach,ENABLED,7400,4600,290,152.00,21
+2026-07-07,client_alpha,camp_104,ag_1002,Interest Layer Tech,ENABLED,6800,4200,270,145.00,18
+2026-07-08,client_alpha,camp_104,ag_1001,Awareness Broad Reach,ENABLED,7100,4450,284,149.00,20
+2026-07-09,client_beta,camp_202,ag_2001,Offer Reminder Core,ENABLED,6200,3800,248,132.00,19
+2026-07-10,client_beta,camp_203,ag_2002,Checkout Recovery Hot,ENABLED,7600,4680,315,165.00,27
+2026-07-10,client_beta,camp_203,ag_2003,Checkout Recovery Warm,ENABLED,6900,4200,278,150.00,23
+2026-07-10,client_gamma,camp_304,ag_3001,Monsoon Reach Tier 1,ENABLED,7300,4480,292,154.00,20
+2026-07-11,client_gamma,camp_304,ag_3002,Monsoon Reach Tier 2,ENABLED,7500,4620,301,159.00,22
+2026-07-11,client_gamma,camp_304,ag_3003,Monsoon Retargeting,PAUSED,0,0,0,0.00,0

@@ -1,0 +1,32 @@
+{
+  "platform": "youtube",
+  "dataset": "campaign_ads",
+  "client_id": "client_gamma",
+  "date_range": {
+    "mode": "relative",
+    "last_n_days": 7,
+    "anchor_date": "2026-07-11"
+  },
+  "filters": {
+    "campaign_status": ["ENABLED"],
+    "campaign_ids": ["camp_304"]
+  },
+  "select_columns": [
+    "date",
+    "client_id",
+    "campaign_id",
+    "adgroup_id",
+    "ad_id",
+    "ad_name",
+    "ad_format",
+    "ad_status",
+    "impressions",
+    "views",
+    "clicks",
+    "spend",
+    "conversions"
+  ],
+  "output": {
+    "path": "outputs/client_gamma_ads_last_7_days.csv"
+  }
+}

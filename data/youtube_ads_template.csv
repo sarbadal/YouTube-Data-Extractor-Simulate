@@ -1,0 +1,10 @@
+date,client_id,campaign_id,adgroup_id,ad_id,ad_name,ad_format,ad_status,impressions,views,clicks,spend,conversions
+2026-07-07,client_alpha,camp_104,ag_1001,ad_5001,Summer Promo Hero 15s,SKIPPABLE_IN_STREAM,ENABLED,3600,2250,145,76.00,11
+2026-07-07,client_alpha,camp_104,ag_1001,ad_5002,Summer Promo Bumper 6s,BUMPER,ENABLED,3400,2050,126,69.00,9
+2026-07-07,client_alpha,camp_104,ag_1002,ad_5003,Summer Promo Shorts Cut,SHORTS,ENABLED,3200,1980,119,66.00,8
+2026-07-09,client_beta,camp_202,ag_2001,ad_6001,Offer Reminder V1,SKIPPABLE_IN_STREAM,ENABLED,3100,1880,122,63.00,10
+2026-07-10,client_beta,camp_203,ag_2002,ad_6002,Checkout Recovery Variant A,SKIPPABLE_IN_STREAM,ENABLED,3900,2410,163,82.00,15
+2026-07-10,client_beta,camp_203,ag_2003,ad_6003,Checkout Recovery Variant B,IN_FEED,ENABLED,3300,1990,130,68.00,12
+2026-07-10,client_gamma,camp_304,ag_3001,ad_7001,Monsoon Promo Main,SKIPPABLE_IN_STREAM,ENABLED,3700,2280,148,75.00,11
+2026-07-11,client_gamma,camp_304,ag_3002,ad_7002,Monsoon Promo Cutdown,SHORTS,ENABLED,3800,2350,153,78.00,12
+2026-07-11,client_gamma,camp_304,ag_3003,ad_7003,Monsoon Retargeting Hook,IN_FEED,PAUSED,0,0,0,0.00,0

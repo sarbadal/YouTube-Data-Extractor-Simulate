@@ -1,0 +1,11 @@
+date,client_id,campaign_id,audience_segment,audience_type,impressions,views,clicks,spend,conversions
+2026-07-07,client_alpha,camp_104,In-Market Auto Buyers,IN_MARKET,4200,2600,175,82.00,18
+2026-07-07,client_alpha,camp_104,Remarketing 30d,REMARKETING,3900,2450,182,79.00,22
+2026-07-08,client_alpha,camp_104,Affinity Tech Enthusiasts,AFFINITY,3600,2250,149,74.00,14
+2026-07-08,client_alpha,camp_104,Remarketing 30d,REMARKETING,4000,2520,190,81.00,24
+2026-07-09,client_beta,camp_202,Custom Intent Offer Seekers,CUSTOM_INTENT,3300,1960,132,66.00,12
+2026-07-10,client_beta,camp_203,Remarketing Cart Abandoners,REMARKETING,4500,2740,198,89.00,26
+2026-07-10,client_beta,camp_203,Affinity Deal Hunters,AFFINITY,3100,1800,120,58.00,10
+2026-07-10,client_gamma,camp_304,In-Market Home Improvement,IN_MARKET,3700,2240,145,72.00,15
+2026-07-11,client_gamma,camp_304,Custom Intent Festival Buyers,CUSTOM_INTENT,3900,2360,154,76.00,16
+2026-07-11,client_gamma,camp_304,Remarketing 30d,REMARKETING,4100,2510,170,80.00,21
