@@ -86,7 +86,7 @@ def parse_args() -> argparse.Namespace:
 	parser.add_argument(
 		"--data-storage-mode",
 		choices=("local", "gcs"),
-		default="local",
+		default="gcs",
 		help="Where extraction templates/outputs are stored: local filesystem or GCS.",
 	)
 	parser.add_argument(

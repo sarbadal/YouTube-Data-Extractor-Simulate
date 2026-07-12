@@ -22,9 +22,23 @@ DATASET_TO_FILE = {
 
 def _is_gcs_data_mode() -> bool:
     mode = os.getenv("DATA_STORAGE_MODE", "local").strip().lower()
+    env_type = os.getenv("ENV_TYPE", "dev").strip().lower()
+    bucket_name = os.getenv("GCS_DATA_BUCKET", "").strip()
+
     if mode == "gcs":
+        if not bucket_name:
+            raise RuntimeError("GCS_DATA_BUCKET must be set when DATA_STORAGE_MODE=gcs")
         return True
-    return bool(os.getenv("GCS_DATA_BUCKET", "").strip())
+
+    if bucket_name:
+        return True
+
+    if env_type == "prod":
+        raise RuntimeError(
+            "Production requires GCS-backed storage. Set DATA_STORAGE_MODE=gcs and GCS_DATA_BUCKET."
+        )
+
+    return False
 
 
 def _get_gcs_client():

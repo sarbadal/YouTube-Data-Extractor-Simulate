@@ -8,7 +8,6 @@ from flask import url_for
 
 from .constants import SECRET_KEY
 from .routes import web
-from .services import REPORT_RETENTION_LIMIT, prune_old_reports
 
 
 def create_app() -> Flask:
@@ -38,7 +37,6 @@ def create_app() -> Flask:
         return {"static_asset_url": static_asset_url}
 
     app.register_blueprint(web)
-    prune_old_reports(max_reports=REPORT_RETENTION_LIMIT)
     return app
 
 
