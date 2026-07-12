@@ -45,6 +45,8 @@ def generate_report() -> Any:
     if requested_limit not in RECENT_REPORT_LIMIT_OPTIONS:
         requested_limit = DEFAULT_RECENT_REPORT_LIMIT
 
+    effective_recent_limit = min(requested_limit, REPORT_RETENTION_LIMIT)
+
     try:
         config_payload = build_config(request.form, request.form.getlist("campaign_status"))
     except ValueError as exc:
@@ -62,13 +64,13 @@ def generate_report() -> Any:
     prune_old_reports(max_reports=REPORT_RETENTION_LIMIT)
 
     output_relpath = output_path.relative_to(PROJECT_ROOT)
-    recent_report_config_pairs = list_recent_report_config_pairs(limit=requested_limit)
+    recent_report_config_pairs = list_recent_report_config_pairs(limit=effective_recent_limit)
     return render_template(
         "result.html",
         output_file=output_relpath.as_posix(),
         config_file=config_path.relative_to(PROJECT_ROOT).as_posix(),
         recent_report_config_pairs=recent_report_config_pairs,
-        recent_reports_limit=requested_limit,
+        recent_reports_limit=effective_recent_limit,
     )
 
 
@@ -83,12 +85,14 @@ def results_page() -> Any:
     if requested_limit not in RECENT_REPORT_LIMIT_OPTIONS:
         requested_limit = DEFAULT_RECENT_REPORT_LIMIT
 
+    effective_recent_limit = min(requested_limit, REPORT_RETENTION_LIMIT)
+
     return render_template(
         "result.html",
         output_file=None,
         config_file=None,
-        recent_report_config_pairs=list_recent_report_config_pairs(limit=requested_limit),
-        recent_reports_limit=requested_limit,
+        recent_report_config_pairs=list_recent_report_config_pairs(limit=effective_recent_limit),
+        recent_reports_limit=effective_recent_limit,
     )
 
 
