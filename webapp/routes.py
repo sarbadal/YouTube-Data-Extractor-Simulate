@@ -59,7 +59,7 @@ def generate_report() -> Any:
     config_path = save_generated_config(config_payload)
 
     try:
-        output_ref = execute_extraction(config_path)
+        output_ref, output_public_url = execute_extraction(config_path)
     except Exception as exc:  # noqa: BLE001
         flash(f"Extraction failed: {exc}", "error")
         return redirect(url_for("web.index"))
@@ -70,6 +70,7 @@ def generate_report() -> Any:
     return render_template(
         "result.html",
         output_file=output_ref.as_posix(),
+        output_public_url=output_public_url,
         config_file=config_path.relative_to(PROJECT_ROOT).as_posix(),
         recent_report_config_pairs=recent_report_config_pairs,
         recent_reports_limit=effective_recent_limit,
@@ -92,6 +93,7 @@ def results_page() -> Any:
     return render_template(
         "result.html",
         output_file=None,
+        output_public_url="",
         config_file=None,
         recent_report_config_pairs=list_recent_report_config_pairs(limit=effective_recent_limit),
         recent_reports_limit=effective_recent_limit,

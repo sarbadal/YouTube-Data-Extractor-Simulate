@@ -30,7 +30,11 @@
 
         <div class="actions">
           {% if output_file and config_file %}
-            <a class="primary-btn" href="{{ url_for('web.download_report', file=output_file) }}">Download CSV</a>
+            {% if output_public_url %}
+              <a class="primary-btn" href="{{ output_public_url }}" target="_blank" rel="noopener">Download CSV</a>
+            {% else %}
+              <a class="primary-btn" href="{{ url_for('web.download_report', file=output_file) }}">Download CSV</a>
+            {% endif %}
             <a class="ghost-btn" href="{{ url_for('web.download_config', file=config_file) }}">Download Config JSON</a>
           {% endif %}
           <a class="ghost-btn" href="{{ url_for('web.index') }}">Generate More Reports</a>
@@ -61,7 +65,11 @@
                         {% endif %}
                       </td>
                       <td>
-                        <a class="primary-btn table-btn" href="{{ url_for('web.download_report', file=item.report_file) }}">Download Report</a>
+                        {% if item.report_public_url %}
+                          <a class="primary-btn table-btn" href="{{ item.report_public_url }}" target="_blank" rel="noopener">Download Report</a>
+                        {% else %}
+                          <a class="primary-btn table-btn" href="{{ url_for('web.download_report', file=item.report_file) }}">Download Report</a>
+                        {% endif %}
                       </td>
                       <td>
                         {% if item.config_file %}

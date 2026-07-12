@@ -350,6 +350,14 @@ def main() -> int:
 
 	if args.data_storage_mode == "gcs":
 		data_bucket = args.data_bucket.strip() or args.bucket
+		client = storage.Client(project=args.project_id)
+		ensure_bucket(
+			client=client,
+			bucket_name=data_bucket,
+			location=args.bucket_location,
+			project_id=args.project_id,
+		)
+		ensure_public_object_access(data_bucket, dry_run=args.dry_run)
 		env_vars.setdefault("GCS_DATA_BUCKET", data_bucket)
 		env_vars.setdefault("GCS_DATA_PREFIX", args.data_prefix.strip().strip("/") or "data")
 		env_vars.setdefault("GCS_OUTPUT_PREFIX", args.output_prefix.strip().strip("/") or "outputs")

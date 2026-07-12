@@ -1,8 +1,5 @@
 from __future__ import annotations
 
-import csv
-import io
-import os
 from pathlib import Path
 
 from youtube_extractor.helpers import filter_rows, project_columns
@@ -18,46 +15,6 @@ DATASET_TO_FILE = {
     "campaign_adgroup": "youtube_adgroup_template.csv",
     "campaign_ads": "youtube_ads_template.csv",
 }
-
-
-def _is_gcs_data_mode() -> bool:
-    mode = os.getenv("DATA_STORAGE_MODE", "local").strip().lower()
-    env_type = os.getenv("ENV_TYPE", "dev").strip().lower()
-    bucket_name = os.getenv("GCS_DATA_BUCKET", "").strip()
-
-    if mode == "gcs":
-        if not bucket_name:
-            raise RuntimeError("GCS_DATA_BUCKET must be set when DATA_STORAGE_MODE=gcs")
-        return True
-
-    if bucket_name:
-        return True
-
-    if env_type == "prod":
-        raise RuntimeError(
-            "Production requires GCS-backed storage. Set DATA_STORAGE_MODE=gcs and GCS_DATA_BUCKET."
-        )
-
-    return False
-
-
-def _get_gcs_client():
-    try:
-        from google.cloud import storage
-    except ImportError as exc:  # pragma: no cover - import guard for local-only runs
-        raise RuntimeError(
-            "google-cloud-storage is required when DATA_STORAGE_MODE=gcs"
-        ) from exc
-    return storage.Client()
-
-
-def _build_csv_bytes(rows: list[dict[str, str]], fallback_columns: list[str]) -> bytes:
-    fieldnames = list(rows[0].keys()) if rows else fallback_columns
-    stream = io.StringIO()
-    writer = csv.DictWriter(stream, fieldnames=fieldnames)
-    writer.writeheader()
-    writer.writerows(rows)
-    return stream.getvalue().encode("utf-8")
 
 
 def run_extraction(config_path: str | Path, project_root: str | Path | None = None) -> Path:
@@ -99,39 +56,13 @@ def run_extraction(config_path: str | Path, project_root: str | Path | None = No
     if not dataset_file:
         raise ValueError(f"Unsupported dataset: {config.dataset}")
 
-    if _is_gcs_data_mode():
-        bucket_name = os.getenv("GCS_DATA_BUCKET", "").strip()
-        if not bucket_name:
-            raise RuntimeError("GCS_DATA_BUCKET must be set when DATA_STORAGE_MODE=gcs")
-
-        data_prefix = os.getenv("GCS_DATA_PREFIX", "data").strip().strip("/")
-        output_prefix = os.getenv("GCS_OUTPUT_PREFIX", "outputs").strip().strip("/")
-
-        client = _get_gcs_client()
-        bucket = client.bucket(bucket_name)
-
-        source_blob_name = f"{data_prefix}/{dataset_file}".strip("/")
-        source_blob = bucket.blob(source_blob_name)
-        source_text = source_blob.download_as_text(encoding="utf-8")
-        rows = list(csv.DictReader(io.StringIO(source_text)))
-    else:
-        source_path = root / "data" / dataset_file
-        rows = load_rows(source_path)
+    source_path = root / "data" / dataset_file
+    rows = load_rows(source_path)
 
     rows = filter_rows(rows, config)
     rows = project_columns(rows, config.select_columns)
 
     output_value = config.output.get("path", "outputs/extraction.csv")
-    if _is_gcs_data_mode():
-        output_name = Path(output_value).name
-        output_blob_name = f"{output_prefix}/{output_name}".strip("/")
-        output_blob = bucket.blob(output_blob_name)
-        output_blob.upload_from_string(
-            _build_csv_bytes(rows, config.select_columns),
-            content_type="text/csv",
-        )
-        return Path(output_blob_name)
-
     output_path = root / output_value
     write_output(rows, output_path, config.select_columns)
     return output_path

@@ -15,6 +15,8 @@ if str(SRC_PATH) not in sys.path:
     sys.path.insert(0, str(SRC_PATH))
 
 from youtube_extractor.extractors import run_extraction
+from youtube_extractor.extractors.youtube_ads_extractor import DATASET_TO_FILE
+from youtube_extractor.models import load_config
 
 REPORT_RETENTION_LIMIT = 5
 
@@ -59,6 +61,40 @@ def _get_gcs_output_prefix() -> str:
     return os.getenv("GCS_OUTPUT_PREFIX", "outputs").strip().strip("/")
 
 
+def _build_public_gcs_url(bucket_name: str, blob_name: str) -> str:
+    return f"https://storage.googleapis.com/{bucket_name}/{blob_name.lstrip('/')}"
+
+
+def _build_output_blob_name(file_name: str) -> str:
+    output_prefix = _get_gcs_output_prefix()
+    return f"{output_prefix}/{file_name}".strip("/")
+
+
+def upload_local_file_to_gcs(local_path: Path, bucket_name: str, blob_name: str, content_type: str) -> str:
+    """Upload a local file to GCS and return a public URL."""
+    if not local_path.exists() or not local_path.is_file():
+        raise FileNotFoundError(f"Local file does not exist: {local_path}")
+
+    client = _get_gcs_client()
+    bucket = client.bucket(bucket_name)
+    blob = bucket.blob(blob_name)
+    blob.upload_from_filename(str(local_path), content_type=content_type)
+    return _build_public_gcs_url(bucket_name, blob_name)
+
+
+def download_gcs_file_to_local(bucket_name: str, blob_name: str, local_path: Path) -> Path:
+    """Download a GCS object to local filesystem and return the local path."""
+    client = _get_gcs_client()
+    bucket = client.bucket(bucket_name)
+    blob = bucket.blob(blob_name)
+    if not blob.exists(client=client):
+        raise FileNotFoundError(f"GCS object does not exist: gs://{bucket_name}/{blob_name}")
+
+    local_path.parent.mkdir(parents=True, exist_ok=True)
+    blob.download_to_filename(str(local_path))
+    return local_path
+
+
 def save_generated_config(config_payload: dict) -> Path:
     CONFIG_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     config_name = f"config_{datetime.utcnow().strftime('%Y%m%d_%H%M%S_%f')}.json"
@@ -67,11 +103,52 @@ def save_generated_config(config_payload: dict) -> Path:
     return config_path
 
 
-def execute_extraction(config_path: Path) -> Path:
+def ensure_required_dataset_local(config_path: Path) -> None:
+    """Download only the required dataset template from GCS into local data/ for extraction."""
+    if not _is_gcs_data_mode():
+        return
+
+    config = load_config(config_path)
+    dataset_file = DATASET_TO_FILE.get(config.dataset)
+    if not dataset_file:
+        raise ValueError(f"Unsupported dataset: {config.dataset}")
+
+    bucket_name = _get_gcs_bucket_name()
+    data_prefix = os.getenv("GCS_DATA_PREFIX", "data").strip().strip("/")
+    blob_name = f"{data_prefix}/{dataset_file}".strip("/")
+    local_data_path = PROJECT_ROOT / "data" / dataset_file
+
+    download_gcs_file_to_local(
+        bucket_name=bucket_name,
+        blob_name=blob_name,
+        local_path=local_data_path,
+    )
+
+
+def execute_extraction(config_path: Path) -> tuple[Path, str]:
+    ensure_required_dataset_local(config_path)
     output_path = run_extraction(config_path=config_path, project_root=PROJECT_ROOT)
+    output_ref = output_path.relative_to(PROJECT_ROOT)
+
     if _is_gcs_data_mode():
-        return output_path
-    return output_path.relative_to(PROJECT_ROOT)
+        bucket_name = _get_gcs_bucket_name()
+        blob_name = _build_output_blob_name(output_path.name)
+        public_url = upload_local_file_to_gcs(
+            local_path=output_path,
+            bucket_name=bucket_name,
+            blob_name=blob_name,
+            content_type="text/csv",
+        )
+
+        # Keep container filesystem clean in GCS mode after upload.
+        try:
+            output_path.unlink()
+        except OSError:
+            pass
+
+        return Path(blob_name), public_url
+
+    return output_ref, ""
 
 
 def resolve_output_download_payload(file_param: str) -> tuple[Path | BinaryIO, str]:
@@ -203,6 +280,7 @@ def prune_old_reports(max_reports: int = REPORT_RETENTION_LIMIT) -> int:
 def list_recent_report_config_pairs(limit: int = 20) -> list[dict[str, str]]:
     recent_reports = list_all_reports()[:limit]
     pairs: list[dict[str, str]] = []
+    report_bucket = _get_gcs_bucket_name() if _is_gcs_data_mode() else ""
 
     for report_ref in recent_reports:
         report_name = Path(report_ref).name
@@ -223,6 +301,9 @@ def list_recent_report_config_pairs(limit: int = 20) -> list[dict[str, str]]:
             {
                 "report_file": report_ref,
                 "report_name": report_name,
+                "report_public_url": _build_public_gcs_url(report_bucket, report_ref)
+                if report_bucket
+                else "",
                 "config_file": config_rel,
                 "config_name": Path(config_rel).name if config_rel else "",
             }
