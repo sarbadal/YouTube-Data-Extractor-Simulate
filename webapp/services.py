@@ -22,6 +22,12 @@ REPORT_RETENTION_LIMIT = 5
 
 
 def _is_gcs_data_mode() -> bool:
+    """Resolve whether storage should run in GCS mode.
+
+    Why: the app supports both local development and cloud-backed operation.
+    This helper centralizes mode selection so every call path uses the same
+    rule and production cannot silently fall back to local disk.
+    """
     mode = os.getenv("DATA_STORAGE_MODE", "local").strip().lower()
     env_type = os.getenv("ENV_TYPE", "dev").strip().lower()
     bucket_name = os.getenv("GCS_DATA_BUCKET", "").strip()
@@ -43,6 +49,11 @@ def _is_gcs_data_mode() -> bool:
 
 
 def _get_gcs_client():
+    """Create a Google Cloud Storage client when GCS mode is enabled.
+
+    Why: importing cloud dependencies lazily avoids requiring the package in
+    purely local runs while still failing with a clear message in GCS mode.
+    """
     try:
         from google.cloud import storage
     except ImportError as exc:  # pragma: no cover - import guard for local-only runs
@@ -51,6 +62,11 @@ def _get_gcs_client():
 
 
 def _get_gcs_bucket_name() -> str:
+    """Return the configured data bucket name.
+
+    Why: many helpers need the same bucket and this check ensures configuration
+    errors surface early with one consistent exception message.
+    """
     bucket_name = os.getenv("GCS_DATA_BUCKET", "").strip()
     if not bucket_name:
         raise RuntimeError("GCS_DATA_BUCKET must be set when DATA_STORAGE_MODE=gcs")
@@ -58,20 +74,39 @@ def _get_gcs_bucket_name() -> str:
 
 
 def _get_gcs_output_prefix() -> str:
+    """Return normalized GCS output prefix for generated reports.
+
+    Why: normalizing leading/trailing slashes prevents malformed object names
+    and keeps all output paths consistent across uploads and listings.
+    """
     return os.getenv("GCS_OUTPUT_PREFIX", "outputs").strip().strip("/")
 
 
 def _build_public_gcs_url(bucket_name: str, blob_name: str) -> str:
+    """Build a direct public URL for a GCS object.
+
+    Why: the UI uses this value to provide one-click downloads that bypass app
+    proxying when objects are publicly readable.
+    """
     return f"https://storage.googleapis.com/{bucket_name}/{blob_name.lstrip('/')}"
 
 
 def _build_output_blob_name(file_name: str) -> str:
+    """Build canonical object path for an uploaded report file.
+
+    Why: report uploads and report listings must agree on the same prefix/name
+    convention so generated files are discoverable later in the UI.
+    """
     output_prefix = _get_gcs_output_prefix()
     return f"{output_prefix}/{file_name}".strip("/")
 
 
 def upload_local_file_to_gcs(local_path: Path, bucket_name: str, blob_name: str, content_type: str) -> str:
-    """Upload a local file to GCS and return a public URL."""
+    """Upload a local artifact to GCS and return its public URL.
+
+    Why: report generation writes files locally first, then this helper handles
+    transfer to durable cloud storage used by download links.
+    """
     if not local_path.exists() or not local_path.is_file():
         raise FileNotFoundError(f"Local file does not exist: {local_path}")
 
@@ -83,7 +118,11 @@ def upload_local_file_to_gcs(local_path: Path, bucket_name: str, blob_name: str,
 
 
 def download_gcs_file_to_local(bucket_name: str, blob_name: str, local_path: Path) -> Path:
-    """Download a GCS object to local filesystem and return the local path."""
+    """Download one GCS object to a local path and return that path.
+
+    Why: extraction code reads local CSV templates, so in GCS mode we stage only
+    the required source file to local disk before running extraction.
+    """
     client = _get_gcs_client()
     bucket = client.bucket(bucket_name)
     blob = bucket.blob(blob_name)
@@ -96,6 +135,11 @@ def download_gcs_file_to_local(bucket_name: str, blob_name: str, local_path: Pat
 
 
 def save_generated_config(config_payload: dict) -> Path:
+    """Persist generated extraction config JSON under configs/generated.
+
+    Why: configs are saved for traceability and for pairing each report with the
+    exact input definition shown in the results table.
+    """
     CONFIG_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     config_name = f"config_{datetime.utcnow().strftime('%Y%m%d_%H%M%S_%f')}.json"
     config_path = CONFIG_OUTPUT_DIR / config_name
@@ -104,7 +148,12 @@ def save_generated_config(config_payload: dict) -> Path:
 
 
 def ensure_required_dataset_local(config_path: Path) -> None:
-    """Download only the required dataset template from GCS into local data/ for extraction."""
+    """Stage the required dataset CSV from GCS into local data directory.
+
+    Why: the extractor is intentionally local-file based. This helper bridges
+    cloud storage and local processing by downloading just the dataset needed
+    for the current config instead of syncing the entire bucket.
+    """
     if not _is_gcs_data_mode():
         return
 
@@ -126,6 +175,12 @@ def ensure_required_dataset_local(config_path: Path) -> None:
 
 
 def execute_extraction(config_path: Path) -> tuple[Path, str]:
+    """Run extraction, optionally upload output to GCS, and return report refs.
+
+    Why: this is the orchestration boundary between web routes and storage.
+    It ensures input data is staged, extraction executes once, and output is
+    published as a public URL in GCS mode for direct downloads.
+    """
     ensure_required_dataset_local(config_path)
     output_path = run_extraction(config_path=config_path, project_root=PROJECT_ROOT)
     output_ref = output_path.relative_to(PROJECT_ROOT)
@@ -152,6 +207,12 @@ def execute_extraction(config_path: Path) -> tuple[Path, str]:
 
 
 def resolve_output_download_payload(file_param: str) -> tuple[Path | BinaryIO, str]:
+    """Resolve report download source for Flask send_file.
+
+    Why: routes should not care whether data is local or cloud-backed. This
+    helper validates path scope and returns a file-like object plus filename for
+    a consistent response path.
+    """
     if _is_gcs_data_mode():
         normalized = file_param.strip().lstrip("/")
         output_prefix = _get_gcs_output_prefix()
@@ -181,6 +242,11 @@ def resolve_output_download_payload(file_param: str) -> tuple[Path | BinaryIO, s
 
 
 def resolve_config_download_path(file_param: str) -> Path:
+    """Resolve and validate local config JSON download path.
+
+    Why: config files are stored locally and this check prevents path traversal
+    while ensuring only known generated configs can be served.
+    """
     target = (PROJECT_ROOT / file_param).resolve()
     configs_root = CONFIG_OUTPUT_DIR.resolve()
 
@@ -193,6 +259,11 @@ def resolve_config_download_path(file_param: str) -> Path:
 
 
 def list_reports_for_client(client_id: str) -> list[str]:
+    """List report object paths for one client, newest first.
+
+    Why: client-scoped listings support report history views and allow the app
+    to work against either local outputs or GCS objects transparently.
+    """
     if _is_gcs_data_mode():
         output_prefix = _get_gcs_output_prefix()
         client = _get_gcs_client()
@@ -217,6 +288,11 @@ def list_reports_for_client(client_id: str) -> list[str]:
 
 
 def list_all_reports() -> list[str]:
+    """List all generated reports in storage backend, newest first.
+
+    Why: retention pruning and the results page need one canonical source of
+    report ordering independent of local or GCS storage mode.
+    """
     if _is_gcs_data_mode():
         output_prefix = _get_gcs_output_prefix()
         client = _get_gcs_client()
@@ -278,6 +354,12 @@ def prune_old_reports(max_reports: int = REPORT_RETENTION_LIMIT) -> int:
 
 
 def list_recent_report_config_pairs(limit: int = 20) -> list[dict[str, str]]:
+    """Build recent report rows paired with best-matching config files.
+
+    Why: the results UI requires friendly row data (name, download refs, public
+    URL, config metadata) without embedding storage or filename parsing logic
+    inside templates.
+    """
     recent_reports = list_all_reports()[:limit]
     pairs: list[dict[str, str]] = []
     report_bucket = _get_gcs_bucket_name() if _is_gcs_data_mode() else ""
