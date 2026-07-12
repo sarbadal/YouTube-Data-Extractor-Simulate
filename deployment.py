@@ -84,6 +84,27 @@ def parse_args() -> argparse.Namespace:
 		help="Optional base path where the app is mounted (e.g. /t-test).",
 	)
 	parser.add_argument(
+		"--data-storage-mode",
+		choices=("local", "gcs"),
+		default="local",
+		help="Where extraction templates/outputs are stored: local filesystem or GCS.",
+	)
+	parser.add_argument(
+		"--data-bucket",
+		default="",
+		help="Bucket for extraction data/outputs when --data-storage-mode=gcs (defaults to --bucket).",
+	)
+	parser.add_argument(
+		"--data-prefix",
+		default="data",
+		help="Input template folder prefix in data bucket when using GCS mode.",
+	)
+	parser.add_argument(
+		"--output-prefix",
+		default="outputs",
+		help="Output folder prefix in data bucket when using GCS mode.",
+	)
+	parser.add_argument(
 		"--service-account",
 		default="",
 		help="Optional service account email for function execution",
@@ -325,6 +346,14 @@ def main() -> int:
 	env_vars = parse_env_pairs(args.env)
 	env_vars.setdefault("ENV_TYPE", "prod")
 	env_vars.setdefault("FLASK_DEBUG", "0")
+	env_vars.setdefault("DATA_STORAGE_MODE", args.data_storage_mode)
+
+	if args.data_storage_mode == "gcs":
+		data_bucket = args.data_bucket.strip() or args.bucket
+		env_vars.setdefault("GCS_DATA_BUCKET", data_bucket)
+		env_vars.setdefault("GCS_DATA_PREFIX", args.data_prefix.strip().strip("/") or "data")
+		env_vars.setdefault("GCS_OUTPUT_PREFIX", args.output_prefix.strip().strip("/") or "outputs")
+
 	if args.url_prefix:
 		env_vars["URL_PREFIX"] = args.url_prefix
 

@@ -13,7 +13,7 @@ from .services import (
     list_recent_report_config_pairs,
     prune_old_reports,
     resolve_config_download_path,
-    resolve_output_download_path,
+    resolve_output_download_payload,
     save_generated_config,
 )
 
@@ -59,18 +59,17 @@ def generate_report() -> Any:
     config_path = save_generated_config(config_payload)
 
     try:
-        output_path = execute_extraction(config_path)
+        output_ref = execute_extraction(config_path)
     except Exception as exc:  # noqa: BLE001
         flash(f"Extraction failed: {exc}", "error")
         return redirect(url_for("web.index"))
 
     prune_old_reports(max_reports=REPORT_RETENTION_LIMIT)
 
-    output_relpath = output_path.relative_to(PROJECT_ROOT)
     recent_report_config_pairs = list_recent_report_config_pairs(limit=effective_recent_limit)
     return render_template(
         "result.html",
-        output_file=output_relpath.as_posix(),
+        output_file=output_ref.as_posix(),
         config_file=config_path.relative_to(PROJECT_ROOT).as_posix(),
         recent_report_config_pairs=recent_report_config_pairs,
         recent_reports_limit=effective_recent_limit,
@@ -104,12 +103,12 @@ def download_report() -> Any:
     file_param = request.args.get("file", "")
 
     try:
-        target = resolve_output_download_path(file_param)
+        target, download_name = resolve_output_download_payload(file_param)
     except (ValueError, FileNotFoundError) as exc:
         flash(str(exc), "error")
         return redirect(url_for("web.index"))
 
-    return send_file(target, as_attachment=True, download_name=target.name, mimetype="text/csv")
+    return send_file(target, as_attachment=True, download_name=download_name, mimetype="text/csv")
 
 
 @web.get("/download-config")
