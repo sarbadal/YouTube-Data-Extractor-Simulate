@@ -10,7 +10,7 @@
       href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+    <link rel="stylesheet" href="{{ static_asset_url('styles.css') }}" />
   </head>
   <body>
     <div class="bg-orb orb-1"></div>
@@ -43,23 +43,31 @@
               <table class="download-table">
                 <thead>
                   <tr>
-                    <th>Report</th>
-                    <th>Config</th>
+                    <th>Report Name</th>
+                    <th>Config Name</th>
+                    <th>Report Download</th>
+                    <th>Config Download</th>
                   </tr>
                 </thead>
                 <tbody>
                   {% for item in recent_report_config_pairs %}
                     <tr>
+                      <td class="file-name">{{ item.report_name }}</td>
+                      <td class="file-name">
+                        {% if item.config_name %}
+                          {{ item.config_name }}
+                        {% else %}
+                          <span class="muted-copy">Config JSON not found</span>
+                        {% endif %}
+                      </td>
                       <td>
-                        {% set report_short = item.report_name[:10] ~ '...' ~ item.report_name[-20:] if item.report_name|length > 33 else item.report_name %}
-                        <a class="ghost-btn report-link" href="{{ url_for('web.download_report', file=item.report_file) }}" title="{{ item.report_name }}">{{ report_short }}</a>
+                        <a class="primary-btn table-btn" href="{{ url_for('web.download_report', file=item.report_file) }}">Download Report</a>
                       </td>
                       <td>
                         {% if item.config_file %}
-                          {% set config_short = item.config_name[:10] ~ '...' ~ item.config_name[-20:] if item.config_name|length > 33 else item.config_name %}
-                          <a class="ghost-btn report-link" href="{{ url_for('web.download_config', file=item.config_file) }}" title="{{ item.config_name }}">{{ config_short }}</a>
+                          <a class="ghost-btn table-btn" href="{{ url_for('web.download_config', file=item.config_file) }}">Download Config</a>
                         {% else %}
-                          <span class="muted-copy">Config JSON not found</span>
+                          <span class="muted-copy">Unavailable</span>
                         {% endif %}
                       </td>
                     </tr>
