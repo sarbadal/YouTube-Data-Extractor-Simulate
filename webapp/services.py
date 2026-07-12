@@ -20,7 +20,10 @@ REPORT_RETENTION_LIMIT = 5
 
 
 def _is_gcs_data_mode() -> bool:
-    return os.getenv("DATA_STORAGE_MODE", "local").strip().lower() == "gcs"
+    mode = os.getenv("DATA_STORAGE_MODE", "local").strip().lower()
+    if mode == "gcs":
+        return True
+    return bool(os.getenv("GCS_DATA_BUCKET", "").strip())
 
 
 def _get_gcs_client():
