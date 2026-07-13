@@ -5,7 +5,9 @@ import json
 import os
 import re
 import sys
-from datetime import datetime
+import threading
+import uuid
+from datetime import datetime, timedelta
 from pathlib import Path
 from typing import BinaryIO
 
@@ -19,6 +21,13 @@ from youtube_extractor.extractors.youtube_ads_extractor import DATASET_TO_FILE
 from youtube_extractor.models import load_config
 
 REPORT_RETENTION_LIMIT = 5
+JOB_STATUS_QUEUED = "QUEUED"
+JOB_STATUS_IN_PROGRESS = "IN_PROGRESS"
+JOB_STATUS_READY = "READY"
+JOB_STATUS_FAILED = "FAILED"
+JOBS_STATE_FILE = CONFIG_OUTPUT_DIR / "report_jobs.json"
+JOBS_STATE_LOCK = threading.Lock()
+JOB_STALE_TIMEOUT_SECONDS = 120
 
 
 def _is_gcs_data_mode() -> bool:
@@ -145,6 +154,159 @@ def save_generated_config(config_payload: dict) -> Path:
     config_path = CONFIG_OUTPUT_DIR / config_name
     config_path.write_text(json.dumps(config_payload, indent=2), encoding="utf-8")
     return config_path
+
+
+def _utcnow_iso() -> str:
+    return datetime.utcnow().isoformat(timespec="seconds") + "Z"
+
+
+def _load_jobs_unlocked() -> list[dict[str, str]]:
+    if not JOBS_STATE_FILE.exists():
+        return []
+    try:
+        payload = json.loads(JOBS_STATE_FILE.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return []
+    if not isinstance(payload, list):
+        return []
+    return [item for item in payload if isinstance(item, dict)]
+
+
+def _parse_iso_z(value: str) -> datetime | None:
+    if not value:
+        return None
+    try:
+        return datetime.strptime(value, "%Y-%m-%dT%H:%M:%SZ")
+    except ValueError:
+        return None
+
+
+def _recover_stale_jobs_unlocked(jobs: list[dict[str, str]], timeout_seconds: int = JOB_STALE_TIMEOUT_SECONDS) -> bool:
+    """Mark stale queued/in-progress jobs as failed.
+
+    Why: background worker threads can be interrupted by app restarts, leaving
+    persisted jobs forever IN_PROGRESS. This recovery keeps queue state honest.
+    """
+    now = datetime.utcnow()
+    threshold = timedelta(seconds=max(1, timeout_seconds))
+    changed = False
+
+    for job in jobs:
+        status = job.get("status", "")
+        if status not in {JOB_STATUS_QUEUED, JOB_STATUS_IN_PROGRESS}:
+            continue
+
+        updated_at = _parse_iso_z(job.get("updated_at", ""))
+        created_at = _parse_iso_z(job.get("created_at", ""))
+        reference_time = updated_at or created_at
+        if not reference_time:
+            continue
+
+        if now - reference_time <= threshold:
+            continue
+
+        job["status"] = JOB_STATUS_FAILED
+        if not job.get("error"):
+            job["error"] = "Job timed out or worker was interrupted. Please resubmit."
+        job["updated_at"] = _utcnow_iso()
+        changed = True
+
+    return changed
+
+
+def _save_jobs_unlocked(jobs: list[dict[str, str]]) -> None:
+    JOBS_STATE_FILE.parent.mkdir(parents=True, exist_ok=True)
+    JOBS_STATE_FILE.write_text(json.dumps(jobs, indent=2), encoding="utf-8")
+
+
+def _update_job(job_id: str, **fields: str) -> None:
+    with JOBS_STATE_LOCK:
+        jobs = _load_jobs_unlocked()
+        now = _utcnow_iso()
+        for job in jobs:
+            if job.get("job_id") != job_id:
+                continue
+            job.update(fields)
+            job["updated_at"] = now
+            break
+        _save_jobs_unlocked(jobs)
+
+
+def _build_job_record(config_path: Path) -> dict[str, str]:
+    config = load_config(config_path)
+    report_name = Path(config.output.get("path", "outputs/extraction.csv")).name
+    timestamp = _utcnow_iso()
+    return {
+        "job_id": str(uuid.uuid4()),
+        "status": JOB_STATUS_QUEUED,
+        "created_at": timestamp,
+        "updated_at": timestamp,
+        "report_file": "",
+        "report_name": report_name,
+        "report_public_url": "",
+        "config_file": config_path.relative_to(PROJECT_ROOT).as_posix(),
+        "config_name": config_path.name,
+        "error": "",
+    }
+
+
+def _process_report_job(job_id: str, config_path: Path) -> None:
+    _update_job(job_id, status=JOB_STATUS_IN_PROGRESS, error="")
+    try:
+        output_ref, output_public_url = execute_extraction(config_path)
+        _update_job(
+            job_id,
+            status=JOB_STATUS_READY,
+            report_file=output_ref.as_posix(),
+            report_public_url=output_public_url,
+            report_name=Path(output_ref).name,
+            error="",
+        )
+        prune_old_reports(max_reports=REPORT_RETENTION_LIMIT)
+    except Exception as exc:  # noqa: BLE001
+        _update_job(job_id, status=JOB_STATUS_FAILED, error=str(exc))
+
+
+def submit_report_job(config_path: Path) -> str:
+    """Create a background report job and return its id.
+
+    Why: users should be able to submit reports and continue using the app
+    while extraction runs asynchronously.
+    """
+    job = _build_job_record(config_path)
+    with JOBS_STATE_LOCK:
+        jobs = _load_jobs_unlocked()
+        if _recover_stale_jobs_unlocked(jobs):
+            _save_jobs_unlocked(jobs)
+        jobs.append(job)
+        _save_jobs_unlocked(jobs)
+
+    worker = threading.Thread(
+        target=_process_report_job,
+        args=(job["job_id"], config_path),
+        daemon=True,
+        name=f"report-job-{job['job_id'][:8]}",
+    )
+    worker.start()
+    return job["job_id"]
+
+
+def list_recent_report_jobs(limit: int = 20) -> list[dict[str, str]]:
+    """Return recent report jobs sorted newest first.
+
+    Why: results page needs a queue view showing in-progress and completed jobs.
+    """
+    with JOBS_STATE_LOCK:
+        jobs = _load_jobs_unlocked()
+        if _recover_stale_jobs_unlocked(jobs):
+            _save_jobs_unlocked(jobs)
+
+    jobs_sorted = sorted(
+        jobs,
+        key=lambda item: item.get("created_at", ""),
+        reverse=True,
+    )
+    return jobs_sorted[:limit]
 
 
 def ensure_required_dataset_local(config_path: Path) -> None:

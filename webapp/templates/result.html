@@ -10,6 +10,7 @@
       href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap"
       rel="stylesheet"
     />
+    <link rel="icon" type="image/x-icon" href="{{ static_asset_url('favicon.ico') }}" />
     <link rel="stylesheet" href="{{ static_asset_url('styles.css') }}" />
   </head>
   <body>
@@ -18,35 +19,36 @@
 
     <main class="container result-container">
       <section class="card result-card">
-        {% if output_file and config_file %}
-          <p class="tag">Success</p>
-          <h1>Report Generated</h1>
-          <p>Your extraction completed successfully.</p>
-        {% else %}
-          <p class="tag">Reports</p>
-          <h1>Available Downloads</h1>
-          <p>Browse and download previously generated reports and matching config files.</p>
+        <p class="tag">Reports</p>
+        <h1>Report Queue & Downloads</h1>
+        <p>Submit reports and continue working. Status updates here automatically.</p>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <section class="flash-area">
+              {% for category, message in messages %}
+                <div class="flash flash-{{ category }}">{{ message }}</div>
+              {% endfor %}
+            </section>
+          {% endif %}
+        {% endwith %}
+
+        {% if submitted_job_id %}
+          <p class="muted-copy">Latest submitted job: <strong>{{ submitted_job_id }}</strong></p>
         {% endif %}
 
         <div class="actions">
-          {% if output_file and config_file %}
-            {% if output_public_url %}
-              <a class="primary-btn" href="{{ output_public_url }}" target="_blank" rel="noopener">Download CSV</a>
-            {% else %}
-              <a class="primary-btn" href="{{ url_for('web.download_report', file=output_file) }}">Download CSV</a>
-            {% endif %}
-            <a class="ghost-btn" href="{{ url_for('web.download_config', file=config_file) }}">Download Config JSON</a>
-          {% endif %}
           <a class="ghost-btn" href="{{ url_for('web.index') }}">Generate More Reports</a>
         </div>
 
         <section class="report-list-area">
-          <h2>Last {{ recent_reports_limit }} Reports Available for Download</h2>
-          {% if recent_report_config_pairs %}
+          <h2>Last {{ recent_reports_limit }} Submitted Reports</h2>
+          {% if recent_report_jobs %}
             <div class="table-wrap">
               <table class="download-table">
                 <thead>
                   <tr>
+                    <th>Status</th>
                     <th>Report Name</th>
                     <th>Config Name</th>
                     <th>Report Download</th>
@@ -54,8 +56,9 @@
                   </tr>
                 </thead>
                 <tbody>
-                  {% for item in recent_report_config_pairs %}
+                  {% for item in recent_report_jobs %}
                     <tr>
+                      <td class="file-name"><strong>{{ item.status }}</strong></td>
                       <td class="file-name">{{ item.report_name }}</td>
                       <td class="file-name">
                         {% if item.config_name %}
@@ -65,10 +68,14 @@
                         {% endif %}
                       </td>
                       <td>
-                        {% if item.report_public_url %}
+                        {% if item.status == 'READY' and item.report_public_url %}
                           <a class="primary-btn table-btn" href="{{ item.report_public_url }}" target="_blank" rel="noopener">Download Report</a>
-                        {% else %}
+                        {% elif item.status == 'READY' and item.report_file %}
                           <a class="primary-btn table-btn" href="{{ url_for('web.download_report', file=item.report_file) }}">Download Report</a>
+                        {% elif item.status == 'FAILED' %}
+                          <span class="muted-copy">Failed</span>
+                        {% else %}
+                          <span class="muted-copy">In progress...</span>
                         {% endif %}
                       </td>
                       <td>
@@ -89,5 +96,10 @@
         </section>
       </section>
     </main>
+    <script>
+      setTimeout(() => {
+        window.location.reload();
+      }, 5000);
+    </script>
   </body>
 </html>

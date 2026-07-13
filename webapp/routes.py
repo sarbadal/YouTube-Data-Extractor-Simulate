@@ -9,12 +9,11 @@ from .constants import DATASET_DEFAULT_COLUMNS, DATASET_OPTIONS, PROJECT_ROOT
 from .form_config import build_config
 from .services import (
     REPORT_RETENTION_LIMIT,
-    execute_extraction,
-    list_recent_report_config_pairs,
-    prune_old_reports,
+    list_recent_report_jobs,
     resolve_config_download_path,
     resolve_output_download_payload,
     save_generated_config,
+    submit_report_job,
 )
 
 web = Blueprint("web", __name__)
@@ -59,22 +58,13 @@ def generate_report() -> Any:
     config_path = save_generated_config(config_payload)
 
     try:
-        output_ref, output_public_url = execute_extraction(config_path)
+        job_id = submit_report_job(config_path)
     except Exception as exc:  # noqa: BLE001
-        flash(f"Extraction failed: {exc}", "error")
+        flash(f"Failed to submit report job: {exc}", "error")
         return redirect(url_for("web.index"))
 
-    prune_old_reports(max_reports=REPORT_RETENTION_LIMIT)
-
-    recent_report_config_pairs = list_recent_report_config_pairs(limit=effective_recent_limit)
-    return render_template(
-        "result.html",
-        output_file=output_ref.as_posix(),
-        output_public_url=output_public_url,
-        config_file=config_path.relative_to(PROJECT_ROOT).as_posix(),
-        recent_report_config_pairs=recent_report_config_pairs,
-        recent_reports_limit=effective_recent_limit,
-    )
+    flash(f"Report job queued successfully. Job ID: {job_id}", "success")
+    return redirect(url_for("web.results_page", limit=effective_recent_limit, submitted=job_id))
 
 
 @web.get("/results")
@@ -89,13 +79,15 @@ def results_page() -> Any:
         requested_limit = DEFAULT_RECENT_REPORT_LIMIT
 
     effective_recent_limit = min(requested_limit, REPORT_RETENTION_LIMIT)
+    submitted_job_id = request.args.get("submitted", "").strip()
 
     return render_template(
         "result.html",
         output_file=None,
         output_public_url="",
         config_file=None,
-        recent_report_config_pairs=list_recent_report_config_pairs(limit=effective_recent_limit),
+        recent_report_jobs=list_recent_report_jobs(limit=effective_recent_limit),
+        submitted_job_id=submitted_job_id,
         recent_reports_limit=effective_recent_limit,
     )
 
