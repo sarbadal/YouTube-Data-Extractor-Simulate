@@ -309,9 +309,51 @@ dd {
   margin: 0;
 }
 
+.app-footer {
+  position: relative;
+  z-index: 1;
+  max-width: 940px;
+  margin: -18px auto 22px;
+  padding: 0 16px;
+}
+
+.result-container + .app-footer {
+  max-width: 1080px;
+}
+
+.footer-content {
+  text-align: center;
+}
+
+.footer-title {
+  margin: 0;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #3e3831;
+}
+
+.footer-subtitle {
+  margin: 3px 0 0;
+  font-size: 0.74rem;
+  color: var(--muted);
+}
+
+.footer-meta {
+  margin: 5px 0 0;
+  font-size: 0.9rem;
+  font-weight: 400;
+  color: #6b645b;
+  letter-spacing: 0.01em;
+}
+
 @media (max-width: 720px) {
   .inline-fields {
     grid-template-columns: 1fr;
+  }
+
+  .footer-content {
+    text-align: left;
   }
 }
 
